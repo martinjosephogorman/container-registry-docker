@@ -1,0 +1,47 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - '*'
+  paths:
+    include:
+    - '*'
+    exclude:
+    - 'README.md'
+
+schedules:
+- cron: "0 0 1 * *"  # Runs at 12:00 AM on the 1st day of every month
+  displayName: Monthly Run
+  branches:
+    include: 
+    - main # which branches the schedule applies to
+
+variables:
+#User Defined Variables
+- group: azure-container-app
+- name: DeploymentBicepFileNameContainerApp
+  value: application-ado-container-app.bicep
+- name: ParameterPathandFileName
+  value: environment/uat-param.json
+- name: ParameterPathandFileNameShared
+  value: environment/shared-param.json
+- name: RepositoryName
+  value: aplication-ado-agent-docker
+- name: Location
+  value: uksouth
+
+#Default Variables
+- name: version.MajorMinor
+  value: 1.0.0 # Manually adjust the version number as needed for semantic versioning. Patch is auto-incremented.
+- name: version.Patch
+  value: $[counter(variables['version.MajorMinor'], 1) ]
+- name: versionNumber
+  value: '$(version.MajorMinor).$(version.Patch)'
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    continueOnError: false
+    steps:
+    - template: build.yaml

@@ -1,0 +1,47 @@
+steps:
+- checkout: self
+- checkout: tools
+
+- task: PowerShell@2
+  displayName: Set Build Id
+  inputs:
+    targetType: 'inline'
+    script: |
+      [string] $buildName = "$(versionNumber)"
+      Write-Host "Setting the name of the build to '$buildName'."
+      Write-Host "##vso[build.updatebuildnumber]$buildName"
+
+- task: AzureCLI@2
+  displayName: Bicep Build
+  inputs:
+    azureSubscription: ADO-CS-UAT
+    scriptType: pscore
+    scriptLocation: inlineScript
+    inlineScript: |
+      az acr build -t sample/acrbuild -r csuksinfra01uatcr https://github.com/martinjosephogorman/container-registry-docker.git -f 'deployment/Dockerfile' --output json -git-access-token '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'
+
+# - task: Docker@2
+#   displayName: Build and Azure DevOps Agent to container registry
+#   inputs:
+#     command: buildAndPush
+#     repository: 'csuskadoagentlinuxca'
+#     dockerfile: '$(Build.SourcesDirectory)/$(RepositoryName)/deployment/Dockerfile'
+#     containerRegistry: 'Registry-csuksapisharedcr01'
+#     tags: '$(Build.BuildNumber)'
+
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: |
+      **
+      !devops-tools/**
+      !$(RepositoryName)/.git/**
+      !$(RepositoryName)/pipelines/**
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    CleanTargetFolder: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'

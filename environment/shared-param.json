@@ -1,0 +1,87 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "environment": {
+            "value": {
+                "subscription": [
+                    {
+                        "location": "uk south",
+                        "SubscriptionId": "41a6acca-3cbf-48cc-a1c0-b8e28dcf92d7"
+                    }
+                ],
+                "resourceGroups": {
+                        "name": "cs-uks-api-shared-ado-rg",
+                        "location": "uk south"
+                    },
+                "containerApp": {
+                    "config": {
+                        "value": {
+                            "name": "csuksadoagentsharedlinux",
+                            "imagename": "csuskadoagentlinuxca",
+                            "env": "prd",
+                            "hostingenv": "AZURE",
+                            "cpu": "2",
+                            "mem": "4Gi",
+                            "azpurl": "https://dev.azure.com/CitySprint",
+                            "azppoolid": "16",
+                            "azppool":"Self-hosted pool Linux",
+                            "min_replicas": "1",
+                            "max_replicas": "4"
+                        }
+                    },
+                    "environmentVariables":[
+                        {
+                            "name": "AZP_URL",
+                            "secretRef": "azpurlref"
+                          },
+                          {
+                            "name": "AZP_TOKEN",
+                            "secretRef": "azptokenref"
+                          },
+                          {
+                            "name": "AZP_POOL",
+                            "secretRef": "azppoolref"
+                          },
+                          {
+                            "name": "AZP_POOLID",
+                            "secretRef": "azppoolidref"
+                          }
+                    ],
+                    "aca": {
+                        "value": {
+                            "name": "cs-uks-api-shared-cae-01",
+                            "rg": "cs-uks-api-shared-ado-rg"
+                        }
+                    },
+                    "acr": {
+                        "value": {
+                            "name": "csuksapisharedcr01",
+                            "rg": "cs-uks-api-shared-cr-rg"
+                        }
+                    },
+                    "kv": {
+                        "value": {
+                            "name": "cs-uks-api-shared-kv-01",
+                            "rg": "cs-uks-api-shared-ado-rg"
+                        }
+                    },
+                    "acae": {
+                        "value": {
+                            "name": "cs-uks-api-shared-cae-01",
+                            "rg": "cs-uks-api-shared-ado-rg",
+                            "location": "uksouth"
+                        }
+                    },
+                    "tags": {
+                        "Application": "Container Registry",
+                        "Criticality": "tier 1",
+                        "Environment": "Shared",
+                        "Owner": "Martin OGorman",
+                        "IaC": "citysprint/application-ado-agent-container-app"
+                    }
+                }
+            }
+        }
+    }
+}
